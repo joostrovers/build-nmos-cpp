@@ -1,6 +1,3 @@
-#Registry JSON file to run
-registry_json=/home/registry.json
-
 #Node JSON file to run
 node_json=/home/node.json
 
@@ -9,14 +6,3 @@ log_output=FALSE
 
 #Update/insert label parameter with container hostname on entrypoint script run
 update_label=TRUE
-
-#Retrive switch PTP BC Domain and update/insert it for AMWA IS-09 NMOS System API
-update_ptp_domain=TRUE
-switch_username=admin
-switch_password=admin
-
-#Run MQTT Broker from container. Advertisement is using mDNS only. For DNS-SD use external DNS
-run_mqtt=TRUE
-mqtt_port=1883
-advertise_mqtt=TRUE
-

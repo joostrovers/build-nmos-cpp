@@ -3,6 +3,7 @@ MAINTAINER rhastie@nvidia.com
 LABEL maintainer="rhastie@nvidia.com"
 
 ARG makemt
+ARG nmos_cpp_version
 
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
 
@@ -39,10 +40,12 @@ RUN cd /home && mkdir certs && git config --global http.sslVerify false && \
     mv /home/nmos-testing/test_data/BCP00301/ca/* /home/certs && \
     rm -rf /home/nmos-testing
 
-## Get source for Sony nmos-cpp/
-ENV NMOS_CPP_VERSION=95536ae32341046dabf66286b373d70e97e3a59a
-RUN cd /home/ && curl --output - -s -k https://codeload.github.com/sony/nmos-cpp/tar.gz/$NMOS_CPP_VERSION | tar zxvf - -C . && \
-    mv ./nmos-cpp-${NMOS_CPP_VERSION} ./nmos-cpp
+## Get source for Sony nmos-cpp/ from personal repo
+
+#ENV NMOS_CPP_VERSION=$nmos_cpp_version
+RUN echo '********** Fetching from https://codeload.github.com/joostrovers/nmos-cpp/tar.gz/$nmos_cpp_version' && \
+    cd /home/ && curl --output - -s -k https://codeload.github.com/joostrovers/nmos-cpp/tar.gz/$nmos_cpp_version | tar zxvf - -C . && \
+    mv ./nmos-cpp-$nmos_cpp_version ./nmos-cpp
 
 ## You should use either Avahi or Apple mDNS - DO NOT use both
 ##
@@ -85,14 +88,6 @@ ADD example-conf /home/example-conf
 ## Get and build source for Sony nmos-js
 RUN cd /home/ && git config --global http.sslVerify false && git clone https://github.com/sony/nmos-js.git
 
-## Custom branding
-COPY NVIDIA_Logo_H_ForScreen_ForLightBG.png nmos-js.patch /home/nmos-js/Development/src/assets/
-RUN cd /home && \
-    mv /home/nmos-js/Development/src/assets/nmos-js.patch /home && \
-    patch -p0 <nmos-js.patch && \
-    rm /home/nmos-js/Development/src/assets/sea-lion.png && \
-    rm nmos-js.patch
-
 ## Build and install Sony nmos-js
 RUN cd /home/nmos-js/Development && \
     yarn install --network-timeout 1000000 && \
@@ -132,10 +127,6 @@ COPY entrypoint.sh container-config registry.json node.json /home/
 
 ##Set script to executable
 RUN chmod +x /home/entrypoint.sh
-
-##Set default config variable to run registry (FALSE) or node (TRUE)
-ARG runnode=FALSE
-ENV RUN_NODE=$runnode
 
 WORKDIR /home/
 ENTRYPOINT ["/home/entrypoint.sh"]
